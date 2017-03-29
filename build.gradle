@@ -80,6 +80,7 @@ allprojects {
 subprojects {
     if (java_projects.contains(project)) {
         apply plugin: 'maven'
+        apply plugin: 'checkstyle'
         apply plugin: 'findbugs'
         apply plugin: 'jacoco'
 
@@ -107,6 +108,20 @@ subprojects {
             }
         }
 
+        def checkstyleConfigDir = new File(rootDir, "/config/checkstyle")
+        checkstyle {
+            configFile = new File(checkstyleConfigDir, "checkstyle.xml")
+            configProperties.checkstyleConfigDir = checkstyleConfigDir
+            toolVersion = '7.6.1'
+            ignoreFailures = true
+        }
+
+        task checkstyle(type: Checkstyle) {
+            classpath = sourceSets.main.output + sourceSets.test.output
+            source = sourceSets.main.allJava + sourceSets.test.allJava
+        }
+        check.dependsOn('checkstyle')
+
         findbugs {
             ignoreFailures = true
         }
@@ -119,11 +134,11 @@ subprojects {
         }
 
         // add tests/javadoc/source jar tasks as artifacts to be released
-        task testsJar(type: Jar, dependsOn: classes) {
+        task testsJar(type: Jar, dependsOn: ['classes', 'checkstyle']) {
             classifier = 'tests'
             from sourceSets.test.output
         }
-        task sourcesJar(type: Jar, dependsOn: classes) {
+        task sourcesJar(type: Jar, dependsOn: ['classes', 'checkstyle']) {
             classifier = 'sources'
             from sourceSets.main.allSource
         }
