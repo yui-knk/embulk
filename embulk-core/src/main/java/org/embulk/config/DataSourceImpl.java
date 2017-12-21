@@ -29,7 +29,7 @@ public class DataSourceImpl
 
     protected DataSourceImpl newInstance(ModelManager model, ObjectNode data)
     {
-        return new DataSourceImpl(model, (ObjectNode) data);
+        return new DataSourceImpl(model, data);
     }
 
     // visible for DataSourceSerDe.DataSourceSerializer
